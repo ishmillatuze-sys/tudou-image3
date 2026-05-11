@@ -138,6 +138,40 @@
       color: var(--text-muted);
     }
 
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-wrapper .auth-input {
+      padding-right: 44px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .password-toggle:hover {
+      color: var(--text-secondary);
+    }
+
+    .password-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
     .auth-row {
       display: flex;
       gap: var(--space-1);
@@ -811,7 +845,15 @@
       <!-- 登录表单 -->
       <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
         <input type="text" class="auth-input" id="loginUsername" placeholder="用户名" required autocomplete="username">
-        <input type="password" class="auth-input" id="loginPassword" placeholder="密码" required autocomplete="current-password">
+        <div class="password-wrapper">
+          <input type="password" class="auth-input" id="loginPassword" placeholder="密码" required autocomplete="current-password">
+          <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
         <p class="auth-error" id="loginError"></p>
         <button type="submit" class="auth-btn">登录</button>
       </form>
@@ -819,7 +861,15 @@
       <!-- 注册表单 -->
       <form class="auth-form hidden" id="registerForm" onsubmit="handleRegister(event)">
         <input type="text" class="auth-input" id="regUsername" placeholder="用户名（3-20字符）" required autocomplete="username">
-        <input type="password" class="auth-input" id="regPassword" placeholder="密码（至少6字符）" required autocomplete="new-password">
+        <div class="password-wrapper">
+          <input type="password" class="auth-input" id="regPassword" placeholder="密码（至少6字符）" required autocomplete="new-password">
+          <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
         <input type="email" class="auth-input" id="regEmail" placeholder="邮箱" required autocomplete="email">
         <div class="auth-row">
           <input type="text" class="auth-input" id="regCode" placeholder="验证码" required>
@@ -966,6 +1016,16 @@
       document.getElementById('loginForm').classList.add('hidden');
       document.getElementById('loginError').textContent = '';
       document.getElementById('registerError').textContent = '';
+    }
+
+    // ========== 密码显示切换 ==========
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.innerHTML = isPassword
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
     }
 
     // ========== 登录 ==========

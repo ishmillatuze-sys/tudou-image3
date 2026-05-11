@@ -51,7 +51,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '该邮箱已注册' });
     }
 
-    // 创建用户（暂时跳过验证码验证，因为邮件服务可能未配置）
+    // 创建用户
     const { data: user, error: createError } = await supabase
       .from('users')
       .insert({
