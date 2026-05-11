@@ -40,32 +40,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '用户名已存在' });
     }
 
-    // 检查邮箱是否已存在
-    const { data: existingEmail } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .single();
-
-    if (existingEmail) {
-      return res.status(400).json({ error: '该邮箱已注册' });
-    }
-
-    // 创建用户
+    // 创建用户（暂时跳过邮箱重复检查）
     const { data: user, error: createError } = await supabase
       .from('users')
       .insert({
         username,
-        password,
-        email,
-        email_verified: true
+        password
       })
       .select()
       .single();
 
     if (createError) {
       console.error('Create user error:', createError);
-      return res.status(500).json({ error: '注册失败' });
+      return res.status(500).json({ error: createError.message || '注册失败' });
     }
 
     return res.status(200).json({
@@ -74,6 +61,6 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Register error:', error);
-    return res.status(500).json({ error: '服务器错误' });
+    return res.status(500).json({ error: '服务器错误: ' + error.message });
   }
 }
