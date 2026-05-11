@@ -40,12 +40,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '用户名已存在' });
     }
 
-    // 创建用户（暂时跳过邮箱重复检查）
+    // 生成随机邀请码
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    // 创建用户
     const { data: user, error: createError } = await supabase
       .from('users')
       .insert({
         username,
-        password
+        password,
+        invite_code: inviteCode
       })
       .select()
       .single();
