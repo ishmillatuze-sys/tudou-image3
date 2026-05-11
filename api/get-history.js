@@ -8,26 +8,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // 验证用户 token
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: '请先登录' });
-  }
-
-  const token = authHeader.replace('Bearer ', '');
   const supabase = createClient(supabaseUrl, supabaseKey);
+  const { userId } = req.query;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-  if (authError || !user) {
-    return res.status(401).json({ error: '登录已过期，请重新登录' });
+  if (!userId) {
+    return res.status(400).json({ error: 'Missing userId' });
   }
 
   try {
     const { data, error } = await supabase
       .from('history')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(100);
 

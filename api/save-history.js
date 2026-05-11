@@ -8,24 +8,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // 验证用户 token
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: '请先登录' });
-  }
-
-  const token = authHeader.replace('Bearer ', '');
   const supabase = createClient(supabaseUrl, supabaseKey);
+  const { userId, prompt, images, refImages, size, resolution } = req.body;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-  if (authError || !user) {
-    return res.status(401).json({ error: '登录已过期，请重新登录' });
-  }
-
-  const { prompt, images, refImages, size, resolution } = req.body;
-
-  if (!images) {
+  if (!userId || !images) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -33,7 +19,7 @@ export default async function handler(req, res) {
     const { data, error } = await supabase
       .from('history')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         prompt,
         images,
         ref_images: refImages,

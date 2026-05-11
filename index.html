@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* ========== 重置 ========== */
     *, *::before, *::after {
       margin: 0;
       padding: 0;
@@ -17,42 +16,23 @@
     }
 
     :root {
-      /* 深色系 */
       --bg-deep: #0a0a0a;
       --bg-card: #111111;
       --bg-card-hover: #1a1a1a;
-      --bg-elevated: #1f1f1f;
-
-      /* 文字 */
       --text-primary: #ffffff;
       --text-secondary: rgba(255, 255, 255, 0.7);
       --text-muted: rgba(255, 255, 255, 0.5);
-
-      /* 渐变色 */
       --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-      /* 单色 */
       --purple: #a855f7;
-      --blue: #3b82f6;
       --pink: #ec4899;
-
-      /* 圆角 */
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 16px;
-      --radius-xl: 24px;
-
-      /* 间距 */
       --space-1: 8px;
       --space-2: 16px;
       --space-3: 24px;
       --space-4: 32px;
-      --space-5: 40px;
-      --space-6: 48px;
-
-      /* 过渡 */
       --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     html, body {
@@ -64,11 +44,9 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
-    /* ========== 登录/注册界面 ========== */
+    /* 登录/注册界面 */
     .auth-overlay {
       position: fixed;
       inset: 0;
@@ -136,7 +114,7 @@
     .auth-form {
       display: flex;
       flex-direction: column;
-      gap: var(--space-3);
+      gap: var(--space-2);
     }
 
     .auth-input {
@@ -160,8 +138,16 @@
       color: var(--text-muted);
     }
 
+    .auth-row {
+      display: flex;
+      gap: var(--space-1);
+    }
+
+    .auth-row .auth-input {
+      flex: 1;
+    }
+
     .auth-btn {
-      width: 100%;
       padding: var(--space-2);
       background: var(--gradient-primary);
       border: none;
@@ -173,8 +159,37 @@
       transition: all var(--transition-fast);
     }
 
-    .auth-btn:hover {
+    .auth-btn:hover:not(:disabled) {
       transform: translateY(-2px);
+    }
+
+    .auth-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .auth-btn-outline {
+      padding: var(--space-2);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .auth-btn-outline:hover:not(:disabled) {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .auth-btn-outline:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .auth-error {
@@ -184,14 +199,13 @@
       min-height: 20px;
     }
 
-    /* ========== 主界面 ========== */
+    /* 主界面 */
     .app {
       height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* 顶部栏 */
     .header {
       height: 64px;
       padding: 0 var(--space-4);
@@ -255,7 +269,6 @@
       height: 16px;
     }
 
-    /* 主内容区 */
     .main {
       flex: 1;
       overflow: hidden;
@@ -264,7 +277,6 @@
       background: rgba(255, 255, 255, 0.05);
     }
 
-    /* 右侧面板 */
     .sidebar {
       width: 320px;
       background: var(--bg-card);
@@ -331,7 +343,6 @@
       color: var(--text-muted);
     }
 
-    /* 中间内容区 */
     .content {
       flex: 1;
       display: flex;
@@ -339,7 +350,6 @@
       overflow: hidden;
     }
 
-    /* 消息列表 */
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -436,7 +446,12 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* 生成结果卡片 */
+    .message-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
     .result-card {
       max-width: 300px;
     }
@@ -461,7 +476,7 @@
       height: 100%;
       object-fit: cover;
       cursor: pointer;
-      transition: all var(--transition-base);
+      transition: all var(--transition-fast);
     }
 
     .result-actions {
@@ -503,7 +518,6 @@
       height: 18px;
     }
 
-    /* 生成中状态 */
     .generating {
       padding: var(--space-5);
       text-align: center;
@@ -528,7 +542,6 @@
       color: var(--text-muted);
     }
 
-    /* 输入区域 */
     .input-area {
       padding: var(--space-3) var(--space-4) var(--space-4);
       border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -540,7 +553,6 @@
       margin: 0 auto;
     }
 
-    /* 拖拽上传区域 */
     .drop-zone {
       border: 2px dashed rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-md);
@@ -610,7 +622,6 @@
       font-size: 12px;
     }
 
-    /* 设置栏 */
     .settings-bar {
       display: flex;
       gap: var(--space-2);
@@ -720,7 +731,6 @@
       height: 20px;
     }
 
-    /* 欢迎界面 */
     .welcome {
       flex: 1;
       display: flex;
@@ -752,23 +762,15 @@
       max-width: 480px;
     }
 
-    /* 响应式 */
     @media (max-width: 768px) {
-      .sidebar {
-        display: none;
-      }
-
-      .header {
-        padding: 0 var(--space-2);
-      }
-
+      .sidebar { display: none; }
+      .header { padding: 0 var(--space-2); }
       .messages, .input-area {
         padding-left: var(--space-2);
         padding-right: var(--space-2);
       }
     }
 
-    /* 联系方式弹窗 */
     .contact-modal {
       position: fixed;
       inset: 0;
@@ -791,13 +793,6 @@
       font-size: 18px;
       margin-bottom: 8px;
     }
-
-    /* 时间标签 */
-    .message-time {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
   </style>
 </head>
 <body>
@@ -809,34 +804,30 @@
       <p class="auth-subtitle">AI 图像生成工具</p>
 
       <div class="auth-tabs">
-        <button class="auth-tab active" onclick="showTab('login')">登录</button>
-        <button class="auth-tab" onclick="showTab('register')">注册</button>
+        <button class="auth-tab active" id="loginTab" onclick="switchToLogin()">登录</button>
+        <button class="auth-tab" id="registerTab" onclick="switchToRegister()">注册</button>
       </div>
 
       <!-- 登录表单 -->
       <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
-        <input type="email" class="auth-input" id="loginEmail" placeholder="邮箱" required>
-        <input type="password" class="auth-input" id="loginPassword" placeholder="密码" required>
+        <input type="text" class="auth-input" id="loginUsername" placeholder="用户名" required autocomplete="username">
+        <input type="password" class="auth-input" id="loginPassword" placeholder="密码" required autocomplete="current-password">
         <p class="auth-error" id="loginError"></p>
         <button type="submit" class="auth-btn">登录</button>
       </form>
 
       <!-- 注册表单 -->
       <form class="auth-form hidden" id="registerForm" onsubmit="handleRegister(event)">
-        <input type="email" class="auth-input" id="regEmail" placeholder="邮箱" required>
-        <input type="password" class="auth-input" id="regPassword" placeholder="密码（至少6字符）" required>
-        <input type="password" class="auth-input" id="regPasswordConfirm" placeholder="确认密码" required>
+        <input type="text" class="auth-input" id="regUsername" placeholder="用户名（3-20字符）" required autocomplete="username">
+        <input type="password" class="auth-input" id="regPassword" placeholder="密码（至少6字符）" required autocomplete="new-password">
+        <input type="email" class="auth-input" id="regEmail" placeholder="邮箱" required autocomplete="email">
+        <div class="auth-row">
+          <input type="text" class="auth-input" id="regCode" placeholder="验证码" required>
+          <button type="button" class="auth-btn-outline" id="sendCodeBtn" onclick="sendVerifyCode()">发送验证码</button>
+        </div>
         <p class="auth-error" id="registerError"></p>
         <button type="submit" class="auth-btn">注册</button>
       </form>
-
-      <!-- 验证提示 -->
-      <div class="hidden" id="verifyForm" style="padding: 16px;">
-        <p style="text-align: center; color: var(--text-secondary); font-size: 14px;">
-          验证邮件已发送到您的邮箱，请点击邮件中的链接完成验证后登录。
-        </p>
-        <button type="button" class="auth-btn" onclick="showTab('login')" style="margin-top: 16px;">返回登录</button>
-      </div>
     </div>
   </div>
 
@@ -940,41 +931,39 @@
   <div class="contact-modal hidden" id="contactModal" onclick="hideContact(event)">
     <div class="contact-content" onclick="event.stopPropagation()">
       <h3>联系作者</h3>
-      <p style="margin: 16px 0;">如果有问题可以加微信联系我</p>
-      <div style="background: var(--bg-card); padding: 16px; border-radius: 8px; text-align: center;">
+      <p style="margin: 16px 0; color: var(--text-secondary);">如果有问题可以加微信联系我</p>
+      <div style="background: var(--bg-deep); padding: 16px; border-radius: 8px; text-align: center;">
         <span style="font-size: 18px; font-weight: 600;">G368kxx1</span>
       </div>
-      <button onclick="hideContact()" style="margin-top: 16px; width: 100%; padding: 12px; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; cursor: pointer;">关闭</button>
+      <button onclick="hideContact()" style="margin-top: 16px; width: 100%; padding: 12px; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">关闭</button>
     </div>
   </div>
 
   <script>
-    // ========== Supabase 初始化 ==========
-    const SUPABASE_URL = 'https://iuwukshuachfiwqnbjiz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1d3Vrc2h1YWNoZml3cW5iaml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODE3NjIsImV4cCI6MjA5NDA1Nzc2Mn0.qN5oc-H-A6hH_6fo_5JEDyLVv6STNNVjel2ath69cMs';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     // ========== 状态 ==========
     let currentUser = null;
     let uploadedImages = [];
     let lastGeneratedImages = [];
     let isGenerating = false;
     let historyData = [];
+    let codeCountdown = 0;
+    let codeTimer = null;
 
     // ========== Tab 切换 ==========
-    function showTab(tab) {
-      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
-      document.getElementById('verifyForm').classList.add('hidden');
+    function switchToLogin() {
+      document.getElementById('loginTab').classList.add('active');
+      document.getElementById('registerTab').classList.remove('active');
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('registerForm').classList.add('hidden');
+      document.getElementById('loginError').textContent = '';
+      document.getElementById('registerError').textContent = '';
+    }
 
-      if (tab === 'login') {
-        document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
-        document.getElementById('loginForm').classList.remove('hidden');
-      } else {
-        document.querySelector('.auth-tab:nth-child(2)').classList.add('active');
-        document.getElementById('registerForm').classList.remove('hidden');
-      }
-
+    function switchToRegister() {
+      document.getElementById('registerTab').classList.add('active');
+      document.getElementById('loginTab').classList.remove('active');
+      document.getElementById('registerForm').classList.remove('hidden');
+      document.getElementById('loginForm').classList.add('hidden');
       document.getElementById('loginError').textContent = '';
       document.getElementById('registerError').textContent = '';
     }
@@ -982,46 +971,109 @@
     // ========== 登录 ==========
     async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
+      const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value;
       const errorEl = document.getElementById('loginError');
 
+      if (!username || !password) {
+        errorEl.textContent = '请填写用户名和密码';
+        return;
+      }
+
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
         });
+        const data = await res.json();
 
-        if (error) {
-          if (error.message.includes('Email not confirmed')) {
-            errorEl.textContent = '邮箱未验证，请先验证邮箱';
-          } else {
-            errorEl.textContent = '邮箱或密码错误';
-          }
-          return;
+        if (data.success) {
+          currentUser = data.user;
+          localStorage.setItem('tudou_user', JSON.stringify(currentUser));
+          showApp();
+        } else {
+          errorEl.textContent = data.error || '登录失败';
         }
-
-        currentUser = {
-          id: data.user.id,
-          email: data.user.email
-        };
-        showApp();
-
       } catch (err) {
         errorEl.textContent = '网络错误';
       }
     }
 
+    // ========== 发送验证码 ==========
+    async function sendVerifyCode() {
+      const email = document.getElementById('regEmail').value.trim();
+      const errorEl = document.getElementById('registerError');
+
+      if (!email) {
+        errorEl.textContent = '请先输入邮箱';
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorEl.textContent = '邮箱格式不正确';
+        return;
+      }
+
+      const btn = document.getElementById('sendCodeBtn');
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          errorEl.textContent = '';
+          startCountdown(60);
+        } else {
+          errorEl.textContent = data.error || '发送失败';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        errorEl.textContent = '网络错误';
+        btn.disabled = false;
+      }
+    }
+
+    function startCountdown(seconds) {
+      codeCountdown = seconds;
+      const btn = document.getElementById('sendCodeBtn');
+
+      if (codeTimer) clearInterval(codeTimer);
+
+      codeTimer = setInterval(() => {
+        if (codeCountdown > 0) {
+          btn.textContent = codeCountdown + 's';
+          btn.disabled = true;
+          codeCountdown--;
+        } else {
+          btn.textContent = '发送验证码';
+          btn.disabled = false;
+          clearInterval(codeTimer);
+        }
+      }, 1000);
+    }
+
     // ========== 注册 ==========
     async function handleRegister(e) {
       e.preventDefault();
-      const email = document.getElementById('regEmail').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
       const password = document.getElementById('regPassword').value;
-      const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+      const email = document.getElementById('regEmail').value.trim();
+      const code = document.getElementById('regCode').value.trim();
       const errorEl = document.getElementById('registerError');
 
-      if (password !== passwordConfirm) {
-        errorEl.textContent = '两次密码不一致';
+      if (!username || !password || !email || !code) {
+        errorEl.textContent = '请填写所有字段';
+        return;
+      }
+
+      if (username.length < 3 || username.length > 20) {
+        errorEl.textContent = '用户名需要3-20个字符';
         return;
       }
 
@@ -1031,108 +1083,65 @@
       }
 
       try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin
-          }
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, email, code })
         });
+        const data = await res.json();
 
-        if (error) {
-          if (error.message.includes('already registered')) {
-            errorEl.textContent = '该邮箱已注册';
-          } else {
-            errorEl.textContent = error.message;
-          }
-          return;
+        if (data.success) {
+          currentUser = data.user;
+          localStorage.setItem('tudou_user', JSON.stringify(currentUser));
+          showApp();
+        } else {
+          errorEl.textContent = data.error || '注册失败';
         }
-
-        // 显示验证提示
-        document.getElementById('registerForm').classList.add('hidden');
-        document.getElementById('verifyForm').classList.remove('hidden');
-
       } catch (err) {
         errorEl.textContent = '网络错误';
       }
     }
 
     // ========== 显示主界面 ==========
-    async function showApp() {
+    function showApp() {
       document.getElementById('authOverlay').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
-      document.getElementById('displayUsername').textContent = currentUser.email;
-
-      await loadHistory();
+      document.getElementById('displayUsername').textContent = currentUser.username;
+      loadHistory();
     }
 
     // ========== 检查登录状态 ==========
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        currentUser = {
-          id: session.user.id,
-          email: session.user.email
-        };
+    function checkAuth() {
+      const saved = localStorage.getItem('tudou_user');
+      if (saved) {
+        currentUser = JSON.parse(saved);
         showApp();
       }
-
-      // 监听认证状态变化
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          currentUser = {
-            id: session.user.id,
-            email: session.user.email
-          };
-          showApp();
-        }
-        if (event === 'SIGNED_OUT') {
-          currentUser = null;
-          document.getElementById('authOverlay').classList.remove('hidden');
-          document.getElementById('mainApp').classList.add('hidden');
-        }
-      });
     }
 
     // ========== 退出登录 ==========
-    async function logout() {
+    function logout() {
       if (confirm('确定退出登录？')) {
-        await supabase.auth.signOut();
+        localStorage.removeItem('tudou_user');
+        currentUser = null;
         location.reload();
       }
     }
 
-    // ========== 拖拽上传 ==========
-    function handleDragStart(e, imgUrl) {
-      e.dataTransfer.setData('text/plain', imgUrl);
-      e.dataTransfer.effectAllowed = 'copy';
-    }
-
+    // ========== 文件上传 ==========
     const dropZone = document.getElementById('dropZone');
-
-    dropZone.ondragover = (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    };
-
-    dropZone.ondragleave = () => {
-      dropZone.classList.remove('dragover');
-    };
-
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+    dropZone.ondragleave = () => { dropZone.classList.remove('dragover'); };
     dropZone.ondrop = (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    };
 
-      const imgUrl = e.dataTransfer.getData('text/plain');
-      if (imgUrl && imgUrl.startsWith('http')) {
-        uploadedImages.push({ dataUrl: imgUrl });
-        renderUploads();
-        return;
-      }
+    document.getElementById('fileInput').onchange = (e) => handleFiles(e.target.files);
 
-      const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-      files.forEach(file => {
+    function handleFiles(files) {
+      Array.from(files).filter(f => f.type.startsWith('image/')).forEach(file => {
         const reader = new FileReader();
         reader.onload = (ev) => {
           uploadedImages.push({ dataUrl: ev.target.result, file });
@@ -1140,21 +1149,8 @@
         };
         reader.readAsDataURL(file);
       });
-    };
-
-    // ========== 文件上传 ==========
-    document.getElementById('fileInput').onchange = (e) => {
-      const files = Array.from(e.target.files);
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          uploadedImages.push({ dataUrl: ev.target.result, file });
-          renderUploads();
-        };
-        reader.readAsDataURL(file);
-      });
-      e.target.value = '';
-    };
+      document.getElementById('fileInput').value = '';
+    }
 
     function renderUploads() {
       const row = document.getElementById('uploadRow');
@@ -1190,43 +1186,34 @@
 
       isGenerating = true;
       document.getElementById('sendBtn').disabled = true;
-
       document.getElementById('welcome').classList.add('hidden');
       document.getElementById('messages').classList.remove('hidden');
 
-      // 检测关键词
       let finalPrompt = prompt;
       let finalImages = [...uploadedImages];
-      const refKeywords = ['上一张图', '这一张图', '这张图'];
-      const shouldAddRef = refKeywords.some(k => prompt.includes(k));
 
-      if (shouldAddRef && lastGeneratedImages.length > 0) {
+      const refKeywords = ['上一张图', '这一张图', '这张图'];
+      if (refKeywords.some(k => prompt.includes(k)) && lastGeneratedImages.length > 0) {
         lastGeneratedImages.forEach(url => finalImages.push({ dataUrl: url }));
         refKeywords.forEach(k => finalPrompt = finalPrompt.replace(k, ''));
         finalPrompt = finalPrompt.trim();
       }
 
-      // 显示用户消息
       renderUserMessage(finalPrompt, finalImages);
-
-      // 显示生成中
       const generatingEl = renderGenerating();
       document.getElementById('messages').appendChild(generatingEl);
       scrollDown();
 
       try {
         const result = await generateImg(finalPrompt, finalImages);
-
         generatingEl.remove();
-
         lastGeneratedImages = result.images;
 
-        // 保存到数据库
-        const saveHeaders = await getAuthHeaders();
         await fetch('/api/save-history', {
           method: 'POST',
-          headers: saveHeaders,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            userId: currentUser.id,
             prompt: prompt,
             images: result.images,
             refImages: finalImages.map(i => i.dataUrl),
@@ -1236,14 +1223,10 @@
         });
 
         renderResult(result.images);
-
         input.value = '';
         uploadedImages = [];
         renderUploads();
-
-        // 更新历史数据并刷新侧边栏（不重新渲染整个消息列表）
-        await refreshHistorySidebar();
-
+        loadHistory();
       } catch (err) {
         generatingEl.remove();
         renderError(err.message);
@@ -1253,26 +1236,9 @@
       document.getElementById('sendBtn').disabled = false;
     }
 
-    // 只刷新右侧历史面板
-    async function refreshHistorySidebar() {
-      try {
-        const headers = await getAuthHeaders();
-        const res = await fetch('/api/get-history', { headers });
-        const data = await res.json();
-
-        if (data.success && data.data) {
-          historyData = data.data;
-          renderHistorySidebar(historyData);
-        }
-      } catch (err) {
-        console.error('刷新历史失败:', err);
-      }
-    }
-
     function renderUserMessage(prompt, images) {
       const container = document.getElementById('messages');
       const el = document.createElement('div');
-      const timeStr = new Date().toLocaleString();
       el.className = 'message user-msg';
       el.innerHTML = `
         <div class="message-avatar user">
@@ -1284,13 +1250,9 @@
         <div class="message-content">
           <div class="message-bubble">
             <div class="message-text">${escapeHtml(prompt)}</div>
-            ${images.length ? `
-              <div class="message-images">
-                ${images.map(img => `<img src="${img.dataUrl}" class="message-img-thumb" alt="参考图">`).join('')}
-              </div>
-            ` : ''}
+            ${images.length ? `<div class="message-images">${images.map(img => `<img src="${img.dataUrl}" class="message-img-thumb" alt="参考图">`).join('')}</div>` : ''}
           </div>
-          <div class="message-time">${timeStr}</div>
+          <div class="message-time">${new Date().toLocaleString()}</div>
         </div>
       `;
       container.appendChild(el);
@@ -1301,15 +1263,8 @@
       const el = document.createElement('div');
       el.className = 'message';
       el.innerHTML = `
-        <div class="message-avatar">
-          <img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;">
-        </div>
-        <div class="message-content">
-          <div class="generating">
-            <div class="generating-spinner"></div>
-            <div class="generating-text">正在生成...</div>
-          </div>
-        </div>
+        <div class="message-avatar"><img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;"></div>
+        <div class="message-content"><div class="generating"><div class="generating-spinner"></div><div class="generating-text">正在生成...</div></div></div>
       `;
       return el;
     }
@@ -1317,45 +1272,31 @@
     function renderResult(images) {
       const container = document.getElementById('messages');
       const el = document.createElement('div');
-      const timeStr = new Date().toLocaleString();
       el.className = 'message';
-
       el.innerHTML = `
-        <div class="message-avatar">
-          <img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;">
-        </div>
+        <div class="message-avatar"><img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;"></div>
         <div class="message-content">
           <div class="result-card">
             <div class="result-grid">
-              ${images.map((img, i) => `
+              ${images.map((img) => `
                 <div class="result-img-wrapper">
                   <img src="${img}" class="result-img" alt="生成结果" onclick="openImage('${img}')" draggable="true" ondragstart="handleDragStart(event, '${img}')">
                   <div class="result-actions">
                     <button class="action-icon-btn" onclick="downloadImage('${img}')" aria-label="下载">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                      </svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
                     <button class="action-icon-btn" onclick="useRefImage('${img}')" aria-label="引用">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/>
-                        <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-                      </svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
                     </button>
-                    <button class="action-icon-btn" onclick="retryWithImage('${img}')" aria-label="重试">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="1 4 1 10 7 10"/>
-                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-                      </svg>
+                    <button class="action-icon-btn" onclick="retryImage('${img}')" aria-label="重试">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
                     </button>
                   </div>
                 </div>
               `).join('')}
             </div>
           </div>
-          <div class="message-time">${timeStr}</div>
+          <div class="message-time">${new Date().toLocaleString()}</div>
         </div>
       `;
       container.appendChild(el);
@@ -1367,16 +1308,8 @@
       const el = document.createElement('div');
       el.className = 'message';
       el.innerHTML = `
-        <div class="message-avatar">
-          <img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;">
-        </div>
-        <div class="message-content">
-          <div class="result-card">
-            <div class="generating">
-              <div class="generating-text" style="color: var(--pink);">生成失败: ${escapeHtml(message)}</div>
-            </div>
-          </div>
-        </div>
+        <div class="message-avatar"><img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;"></div>
+        <div class="message-content"><div class="result-card"><div class="generating"><div class="generating-text" style="color: var(--pink);">生成失败: ${escapeHtml(message)}</div></div></div></div>
       `;
       container.appendChild(el);
       scrollDown();
@@ -1394,178 +1327,79 @@
     }
 
     // ========== API 调用 ==========
-    async function getAuthHeaders() {
-      const { data: { session } } = await supabase.auth.getSession();
-      return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token || ''}`
-      };
-    }
-
     async function generateImg(prompt, images = []) {
       const size = document.getElementById('sizeSelect').value;
       const res = document.getElementById('resolutionSelect').value;
+      const body = { model: 'gpt-image-2', prompt: prompt || '生成图片', size, resolution: res, n: 1 };
+      if (images.length) body.image_urls = images.map(i => i.dataUrl);
 
-      const body = {
-        model: 'gpt-image-2',
-        prompt: prompt || '生成图片',
-        size,
-        resolution: res,
-        n: 1
-      };
-
-      if (images.length) {
-        body.image_urls = images.map(i => i.dataUrl);
-      }
-
-      const headers = await getAuthHeaders();
       const resp = await fetch('/api/generate', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-
       const data = await resp.json();
-      if (data.code !== 200) {
-        throw new Error(data.message || '提交失败');
-      }
+      if (data.code !== 200) throw new Error(data.message || '提交失败');
 
       const taskId = data.data[0].task_id;
-      let tries = 0;
-
-      while (tries < 120) {
+      for (let i = 0; i < 120; i++) {
         await new Promise(r => setTimeout(r, 2500));
-        const taskHeaders = await getAuthHeaders();
-        const st = await fetch(`/api/task?taskId=${taskId}`, { headers: taskHeaders });
+        const st = await fetch(`/api/task?taskId=${taskId}`);
         const sd = await st.json();
-
         if (sd.data?.status === 'completed' || sd.data?.status === 'succeeded') {
-          return {
-            images: sd.data.result.images.map(i => Array.isArray(i.url) ? i.url[0] : i.url)
-          };
+          return { images: sd.data.result.images.map(i => Array.isArray(i.url) ? i.url[0] : i.url) };
         }
-
-        if (sd.data?.status === 'failed') {
-          throw new Error('生成失败');
-        }
-
-        tries++;
+        if (sd.data?.status === 'failed') throw new Error('生成失败');
       }
-
       throw new Error('生成超时');
     }
 
     // ========== 工具函数 ==========
-    function openImage(url) {
-      window.open(url, '_blank');
-    }
-
-    function downloadImage(url) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `tudou-${Date.now()}.png`;
-      a.click();
-    }
-
-    function useRefImage(url) {
-      uploadedImages.push({ dataUrl: url });
-      renderUploads();
-      document.getElementById('promptInput').focus();
-    }
-
-    function retryWithImage(imgUrl) {
-      for (let i = document.querySelectorAll('.message').length - 1; i >= 0; i--) {
-        const msgEl = document.querySelectorAll('.message')[i];
-        const resultImg = msgEl.querySelector('.result-img');
-        if (resultImg && resultImg.src === imgUrl) {
-          for (let j = i - 1; j >= 0; j--) {
-            const userMsg = document.querySelectorAll('.message')[j];
-            if (userMsg.classList.contains('user-msg')) {
-              const promptEl = userMsg.querySelector('.message-text');
-              const prompt = promptEl ? promptEl.textContent : '';
-              document.getElementById('promptInput').value = prompt;
-
-              const refImages = userMsg.querySelectorAll('.message-img-thumb');
-              uploadedImages = Array.from(refImages).map(img => ({ dataUrl: img.src }));
-              uploadedImages.push({ dataUrl: imgUrl });
-              renderUploads();
-              document.getElementById('promptInput').focus();
-              return;
-            }
-          }
-        }
-      }
-    }
+    function handleDragStart(e, url) { e.dataTransfer.setData('text/plain', url); e.dataTransfer.effectAllowed = 'copy'; }
+    function openImage(url) { window.open(url, '_blank'); }
+    function downloadImage(url) { const a = document.createElement('a'); a.href = url; a.download = `tudou-${Date.now()}.png`; a.click(); }
+    function useRefImage(url) { uploadedImages.push({ dataUrl: url }); renderUploads(); document.getElementById('promptInput').focus(); }
+    function retryImage(url) { uploadedImages.push({ dataUrl: url }); renderUploads(); document.getElementById('promptInput').focus(); }
 
     // ========== 历史记录 ==========
     async function loadHistory() {
       if (!currentUser) return;
-
       try {
-        const headers = await getAuthHeaders();
-        const res = await fetch('/api/get-history', { headers });
+        const res = await fetch(`/api/get-history?userId=${currentUser.id}`);
         const data = await res.json();
-
         if (data.success && data.data) {
           historyData = data.data;
-
-          // 如果有历史记录，渲染成对话列表
           if (historyData.length > 0) {
             document.getElementById('welcome').classList.add('hidden');
             document.getElementById('messages').classList.remove('hidden');
             renderHistoryMessages(historyData);
           }
-
           renderHistorySidebar(historyData);
         }
-      } catch (err) {
-        console.error('加载历史失败:', err);
-      }
+      } catch (err) { console.error('加载历史失败:', err); }
     }
 
-    // 渲染历史对话到主消息区域
     function renderHistoryMessages(history) {
       const container = document.getElementById('messages');
       container.innerHTML = '';
-
-      // 按时间升序排列（最早的在上面）
-      const sortedHistory = [...history].reverse();
-
-      sortedHistory.forEach((item) => {
+      [...history].reverse().forEach((item) => {
         if (item.images && item.images.length) {
           const timeStr = new Date(item.created_at).toLocaleString();
-
-          // 渲染用户消息
           const userMsg = document.createElement('div');
           userMsg.className = 'message user-msg';
           userMsg.innerHTML = `
-            <div class="message-avatar user">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            </div>
+            <div class="message-avatar user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div class="message-content">
-              <div class="message-bubble">
-                <div class="message-text">${escapeHtml(item.prompt || '无描述')}</div>
-                ${item.ref_images && item.ref_images.length ? `
-                  <div class="message-images">
-                    ${item.ref_images.map(img => `<img src="${img}" class="message-img-thumb" alt="参考图">`).join('')}
-                  </div>
-                ` : ''}
-              </div>
+              <div class="message-bubble"><div class="message-text">${escapeHtml(item.prompt || '无描述')}</div></div>
               <div class="message-time">${timeStr}</div>
             </div>
           `;
           container.appendChild(userMsg);
 
-          // 渲染 AI 响应
           const aiMsg = document.createElement('div');
           aiMsg.className = 'message';
           aiMsg.innerHTML = `
-            <div class="message-avatar">
-              <img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;">
-            </div>
+            <div class="message-avatar"><img src="tudou-logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: inherit;"></div>
             <div class="message-content">
               <div class="result-card">
                 <div class="result-grid">
@@ -1573,25 +1407,9 @@
                     <div class="result-img-wrapper">
                       <img src="${img}" class="result-img" alt="生成结果" onclick="openImage('${img}')" draggable="true" ondragstart="handleDragStart(event, '${img}')">
                       <div class="result-actions">
-                        <button class="action-icon-btn" onclick="downloadImage('${img}')" aria-label="下载">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                            <polyline points="7 10 12 15 17 10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
-                          </svg>
-                        </button>
-                        <button class="action-icon-btn" onclick="useRefImage('${img}')" aria-label="引用">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/>
-                            <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-                          </svg>
-                        </button>
-                        <button class="action-icon-btn" onclick="retryWithPrompt('${escapeHtml(item.prompt || '')}', '${img}')" aria-label="重试">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="1 4 1 10 7 10"/>
-                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-                          </svg>
-                        </button>
+                        <button class="action-icon-btn" onclick="downloadImage('${img}')" aria-label="下载"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+                        <button class="action-icon-btn" onclick="useRefImage('${img}')" aria-label="引用"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg></button>
+                        <button class="action-icon-btn" onclick="retryImage('${img}')" aria-label="重试"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
                       </div>
                     </div>
                   `).join('')}
@@ -1603,34 +1421,17 @@
           container.appendChild(aiMsg);
         }
       });
-
-      // 滚动到底部显示最新的
       scrollDown();
-
-      // 更新 lastGeneratedImages 为最新生成的图
-      if (history.length > 0 && history[0].images) {
-        lastGeneratedImages = history[0].images;
-      }
+      if (history.length > 0 && history[0].images) lastGeneratedImages = history[0].images;
     }
 
-    // 重试功能 - 使用历史prompt和图片
-    function retryWithPrompt(prompt, imgUrl) {
-      document.getElementById('promptInput').value = prompt;
-      uploadedImages = [{ dataUrl: imgUrl }];
-      renderUploads();
-      document.getElementById('promptInput').focus();
-    }
-
-    // 渲染右侧历史面板
     function renderHistorySidebar(history) {
       const list = document.getElementById('historyList');
       list.innerHTML = '';
-
       history.forEach((item, idx) => {
         if (item.images && item.images.length) {
           const el = document.createElement('div');
           el.className = 'history-item';
-          // 点击跳转到对应对话（需要计算实际位置，因为每条历史有2条消息）
           el.onclick = () => scrollToHistoryItem(history.length - 1 - idx);
           el.innerHTML = `
             <img src="${item.images[0]}" class="history-thumb" alt="生成结果">
@@ -1643,27 +1444,14 @@
     }
 
     function scrollToHistoryItem(idx) {
-      const container = document.getElementById('messages');
-      const messages = container.querySelectorAll('.message');
-      // idx 对应的是第几个用户消息（每个对话有2条消息：用户+AI）
-      // 所以实际消息位置是 idx * 2
+      const messages = document.getElementById('messages').querySelectorAll('.message');
       const actualIdx = idx * 2;
-      if (messages[actualIdx]) {
-        messages[actualIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      if (messages[actualIdx]) messages[actualIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // ========== 联系方式弹窗 ==========
-    function showContact(e) {
-      e.preventDefault();
-      document.getElementById('contactModal').classList.remove('hidden');
-    }
-
-    function hideContact(e) {
-      if (!e || e.target === document.getElementById('contactModal')) {
-        document.getElementById('contactModal').classList.add('hidden');
-      }
-    }
+    // ========== 联系方式 ==========
+    function showContact(e) { e.preventDefault(); document.getElementById('contactModal').classList.remove('hidden'); }
+    function hideContact(e) { if (!e || e.target === document.getElementById('contactModal')) document.getElementById('contactModal').classList.add('hidden'); }
 
     // ========== 初始化 ==========
     checkAuth();
