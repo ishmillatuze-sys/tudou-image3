@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 
     if (createError) {
       console.error('Create user error:', createError);
-      return res.status(500).json({ error: '注册失败', details: createError.message });
+      return res.status(500).json({ error: '注册失败' });
     }
 
     return res.status(200).json({
