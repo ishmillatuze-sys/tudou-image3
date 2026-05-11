@@ -1419,7 +1419,16 @@
     function openImage(url) { window.open(url, '_blank'); }
     function downloadImage(url) { const a = document.createElement('a'); a.href = url; a.download = `tudou-${Date.now()}.png`; a.click(); }
     function useRefImage(url) { uploadedImages.push({ dataUrl: url }); renderUploads(); document.getElementById('promptInput').focus(); }
-    function retryImage(url) { uploadedImages.push({ dataUrl: url }); renderUploads(); document.getElementById('promptInput').focus(); }
+    function retryImage(prompt, refImages) {
+      // 恢复描述词
+      document.getElementById('promptInput').value = prompt || '';
+      // 恢复参考图
+      if (refImages && refImages.length > 0) {
+        uploadedImages = refImages.map(url => ({ dataUrl: url }));
+        renderUploads();
+      }
+      document.getElementById('promptInput').focus();
+    }
 
     // ========== 历史记录 ==========
     async function loadHistory() {
@@ -1442,15 +1451,20 @@
     function renderHistoryMessages(history) {
       const container = document.getElementById('messages');
       container.innerHTML = '';
-      [...history].reverse().forEach((item) => {
+      const reversedHistory = [...history].reverse();
+      reversedHistory.forEach((item, index) => {
         if (item.images && item.images.length) {
           const timeStr = new Date(item.created_at).toLocaleString();
+          const promptText = escapeHtml(item.prompt || '无描述');
+          const promptRaw = escapeHtml(item.prompt || '');
+          const refImagesJson = JSON.stringify(item.refImages || []).replace(/"/g, '&quot;');
+
           const userMsg = document.createElement('div');
           userMsg.className = 'message user-msg';
           userMsg.innerHTML = `
             <div class="message-avatar user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div class="message-content">
-              <div class="message-bubble"><div class="message-text">${escapeHtml(item.prompt || '无描述')}</div></div>
+              <div class="message-bubble"><div class="message-text">${promptText}</div></div>
               <div class="message-time">${timeStr}</div>
             </div>
           `;
@@ -1469,7 +1483,7 @@
                       <div class="result-actions">
                         <button class="action-icon-btn" onclick="downloadImage('${img}')" aria-label="下载"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                         <button class="action-icon-btn" onclick="useRefImage('${img}')" aria-label="引用"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg></button>
-                        <button class="action-icon-btn" onclick="retryImage('${img}')" aria-label="重试"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+                        <button class="action-icon-btn" onclick='retryImage("${promptRaw}", ${JSON.stringify(item.refImages || [])})' aria-label="重试"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
                       </div>
                     </div>
                   `).join('')}
