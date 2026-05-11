@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
       body: JSON.stringify({
-        from: '土豆 Image-2 <noreply@tudouimage.cn>',
+        from: '土豆 Image-2 <onboarding@resend.dev>',
         to: email,
         subject: '您的验证码',
         html: `
