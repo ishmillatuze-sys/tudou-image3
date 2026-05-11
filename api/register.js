@@ -1,17 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return res.status(500).json({ error: '服务器配置错误' });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
   const { username, password, inviteCode } = req.body;
 
-  // 验证输入
   if (!username || !password || !inviteCode) {
     return res.status(400).json({ error: '请填写所有字段' });
   }
@@ -25,7 +29,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 检查邀请码是否有效
     const { data: inviteData, error: inviteError } = await supabase
       .from('invite_codes')
       .select('*')
@@ -37,7 +40,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '邀请码无效或已被使用' });
     }
 
-    // 检查用户名是否已存在
     const { data: existingUser } = await supabase
       .from('users')
       .select('id')
@@ -48,12 +50,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '用户名已存在' });
     }
 
-    // 创建用户
     const { data: user, error: createError } = await supabase
       .from('users')
       .insert({
         username,
-        password, // 注意：实际生产环境应该加密密码
+        password,
         invite_code: inviteCode
       })
       .select()
@@ -63,7 +64,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: '注册失败' });
     }
 
-    // 标记邀请码已使用
     await supabase
       .from('invite_codes')
       .update({ is_used: true, used_by: user.id })

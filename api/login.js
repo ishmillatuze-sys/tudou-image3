@@ -1,13 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase config');
+    return res.status(500).json({ error: '服务器配置错误' });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { username, password } = req.body;
 
@@ -16,7 +22,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 查找用户
     const { data: user, error } = await supabase
       .from('users')
       .select('id, username, password')
@@ -27,7 +32,6 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: '用户名或密码错误' });
     }
 
-    // 验证密码
     if (user.password !== password) {
       return res.status(401).json({ error: '用户名或密码错误' });
     }

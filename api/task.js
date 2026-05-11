@@ -1,12 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return res.status(500).json({ error: '服务器配置错误' });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { taskId } = req.query;
   const userId = req.headers['x-beta-code'];
@@ -15,10 +21,6 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: '请先登录' });
   }
 
-  // 初始化 Supabase
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  // 验证用户
   const { data: user, error } = await supabase
     .from('users')
     .select('id')
@@ -29,7 +31,6 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: '用户无效' });
   }
 
-  // 获取 API Key
   const API_KEY = process.env.APIMART_API_KEY;
   if (!API_KEY) {
     return res.status(500).json({ error: 'API key not configured' });
