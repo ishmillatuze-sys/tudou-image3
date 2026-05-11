@@ -1,32 +1,35 @@
 import { createClient } from '@supabase/supabase-js';
 
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return res.status(500).json({ error: '服务器配置错误' });
+  // 验证用户 token
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: '请先登录' });
   }
 
+  const token = authHeader.replace('Bearer ', '');
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  const { userId } = req.query;
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
-  if (!userId) {
-    return res.status(400).json({ error: 'Missing userId' });
+  if (authError || !user) {
+    return res.status(401).json({ error: '登录已过期，请重新登录' });
   }
 
   try {
     const { data, error } = await supabase
       .from('history')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(100);
 
     if (error) {
       return res.status(500).json({ error: '获取失败' });

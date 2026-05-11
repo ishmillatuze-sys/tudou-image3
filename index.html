@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     /* ========== 重置 ========== */
     *, *::before, *::after {
@@ -783,7 +784,7 @@
 
       <!-- 登录表单 -->
       <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
-        <input type="text" class="auth-input" id="loginUsername" placeholder="用户名" required>
+        <input type="email" class="auth-input" id="loginEmail" placeholder="邮箱" required>
         <input type="password" class="auth-input" id="loginPassword" placeholder="密码" required>
         <p class="auth-error" id="loginError"></p>
         <button type="submit" class="auth-btn">登录</button>
@@ -791,12 +792,20 @@
 
       <!-- 注册表单 -->
       <form class="auth-form hidden" id="registerForm" onsubmit="handleRegister(event)">
-        <input type="text" class="auth-input" id="regUsername" placeholder="用户名（3-20字符）" required>
+        <input type="email" class="auth-input" id="regEmail" placeholder="邮箱" required>
         <input type="password" class="auth-input" id="regPassword" placeholder="密码（至少6字符）" required>
-        <input type="text" class="auth-input" id="regInviteCode" placeholder="邀请码" required>
+        <input type="password" class="auth-input" id="regPasswordConfirm" placeholder="确认密码" required>
         <p class="auth-error" id="registerError"></p>
         <button type="submit" class="auth-btn">注册</button>
       </form>
+
+      <!-- 验证提示 -->
+      <div class="auth-form hidden" id="verifyForm">
+        <p style="text-align: center; color: var(--text-secondary); font-size: 14px;">
+          验证邮件已发送到您的邮箱，请点击邮件中的链接完成验证后登录。
+        </p>
+        <button type="button" class="auth-btn" onclick="showTab('login')" style="margin-top: 16px;">返回登录</button>
+      </div>
     </div>
   </div>
 
@@ -889,15 +898,17 @@
   </div>
 
   <script>
-    // ========== 配置 ==========
+    // ========== Supabase 初始化 ==========
     const SUPABASE_URL = 'https://iuwukshuachfiwqnbjiz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1d3Vrc2h1YWNoZml3cW5iaml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODE3NjIsImV4cCI6MjA5NDA1Nzc2Mn0.qN5oc-H-A6hH_6fo_5JEDyLVv6STNNVjel2ath69cMs';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ========== 状态 ==========
     let currentUser = null;
     let uploadedImages = [];
     let lastGeneratedImages = [];
     let isGenerating = false;
+    let historyData = [];
 
     // ========== Tab 切换 ==========
     function showTab(tab) {
@@ -919,26 +930,31 @@
     // ========== 登录 ==========
     async function handleLogin(e) {
       e.preventDefault();
-      const username = document.getElementById('loginUsername').value.trim();
+      const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
       const errorEl = document.getElementById('loginError');
 
       try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
         });
 
-        const data = await res.json();
-
-        if (data.success) {
-          currentUser = data.user;
-          localStorage.setItem('tudou_user', JSON.stringify(currentUser));
-          showApp();
-        } else {
-          errorEl.textContent = data.error || '登录失败';
+        if (error) {
+          if (error.message.includes('Email not confirmed')) {
+            errorEl.textContent = '邮箱未验证，请先验证邮箱';
+          } else {
+            errorEl.textContent = '邮箱或密码错误';
+          }
+          return;
         }
+
+        currentUser = {
+          id: data.user.id,
+          email: data.user.email
+        };
+        showApp();
+
       } catch (err) {
         errorEl.textContent = '网络错误';
       }
@@ -947,27 +963,43 @@
     // ========== 注册 ==========
     async function handleRegister(e) {
       e.preventDefault();
-      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPassword').value;
-      const inviteCode = document.getElementById('regInviteCode').value.trim().toUpperCase();
+      const passwordConfirm = document.getElementById('regPasswordConfirm').value;
       const errorEl = document.getElementById('registerError');
 
+      if (password !== passwordConfirm) {
+        errorEl.textContent = '两次密码不一致';
+        return;
+      }
+
+      if (password.length < 6) {
+        errorEl.textContent = '密码至少6个字符';
+        return;
+      }
+
       try {
-        const res = await fetch('/api/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, inviteCode })
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin
+          }
         });
 
-        const data = await res.json();
-
-        if (data.success) {
-          currentUser = data.user;
-          localStorage.setItem('tudou_user', JSON.stringify(currentUser));
-          showApp();
-        } else {
-          errorEl.textContent = data.error || '注册失败';
+        if (error) {
+          if (error.message.includes('already registered')) {
+            errorEl.textContent = '该邮箱已注册';
+          } else {
+            errorEl.textContent = error.message;
+          }
+          return;
         }
+
+        // 显示验证提示
+        document.getElementById('registerForm').classList.add('hidden');
+        document.getElementById('verifyForm').classList.remove('hidden');
+
       } catch (err) {
         errorEl.textContent = '网络错误';
       }
@@ -977,37 +1009,44 @@
     async function showApp() {
       document.getElementById('authOverlay').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
-      document.getElementById('displayUsername').textContent = currentUser.username;
+      document.getElementById('displayUsername').textContent = currentUser.email;
 
       await loadHistory();
     }
 
     // ========== 检查登录状态 ==========
     async function checkAuth() {
-      const saved = localStorage.getItem('tudou_user');
-      if (!saved) return;
+      const { data: { session } } = await supabase.auth.getSession();
 
-      currentUser = JSON.parse(saved);
-
-      // 验证用户是否仍然有效
-      try {
-        const res = await fetch(`/api/get-history?userId=${currentUser.id}`);
-        if (res.ok) {
-          showApp();
-        } else {
-          localStorage.removeItem('tudou_user');
-          currentUser = null;
-        }
-      } catch (err) {
-        showApp(); // 离线时也显示
+      if (session) {
+        currentUser = {
+          id: session.user.id,
+          email: session.user.email
+        };
+        showApp();
       }
+
+      // 监听认证状态变化
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          currentUser = {
+            id: session.user.id,
+            email: session.user.email
+          };
+          showApp();
+        }
+        if (event === 'SIGNED_OUT') {
+          currentUser = null;
+          document.getElementById('authOverlay').classList.remove('hidden');
+          document.getElementById('mainApp').classList.add('hidden');
+        }
+      });
     }
 
     // ========== 退出登录 ==========
-    function logout() {
+    async function logout() {
       if (confirm('确定退出登录？')) {
-        localStorage.removeItem('tudou_user');
-        currentUser = null;
+        await supabase.auth.signOut();
         location.reload();
       }
     }
@@ -1131,11 +1170,11 @@
         lastGeneratedImages = result.images;
 
         // 保存到数据库
+        const saveHeaders = await getAuthHeaders();
         await fetch('/api/save-history', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: saveHeaders,
           body: JSON.stringify({
-            userId: currentUser.id,
             prompt: prompt,
             images: result.images,
             refImages: finalImages.map(i => i.dataUrl),
@@ -1165,7 +1204,8 @@
     // 只刷新右侧历史面板
     async function refreshHistorySidebar() {
       try {
-        const res = await fetch(`/api/get-history?userId=${currentUser.id}`);
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/get-history', { headers });
         const data = await res.json();
 
         if (data.success && data.data) {
@@ -1298,6 +1338,14 @@
     }
 
     // ========== API 调用 ==========
+    async function getAuthHeaders() {
+      const { data: { session } } = await supabase.auth.getSession();
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token || ''}`
+      };
+    }
+
     async function generateImg(prompt, images = []) {
       const size = document.getElementById('sizeSelect').value;
       const res = document.getElementById('resolutionSelect').value;
@@ -1314,12 +1362,10 @@
         body.image_urls = images.map(i => i.dataUrl);
       }
 
+      const headers = await getAuthHeaders();
       const resp = await fetch('/api/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-beta-code': currentUser.id
-        },
+        headers,
         body: JSON.stringify(body)
       });
 
@@ -1333,9 +1379,8 @@
 
       while (tries < 120) {
         await new Promise(r => setTimeout(r, 2500));
-        const st = await fetch(`/api/task?taskId=${taskId}`, {
-          headers: { 'x-beta-code': currentUser.id }
-        });
+        const taskHeaders = await getAuthHeaders();
+        const st = await fetch(`/api/task?taskId=${taskId}`, { headers: taskHeaders });
         const sd = await st.json();
 
         if (sd.data?.status === 'completed' || sd.data?.status === 'succeeded') {
@@ -1403,7 +1448,8 @@
       if (!currentUser) return;
 
       try {
-        const res = await fetch(`/api/get-history?userId=${currentUser.id}`);
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/get-history', { headers });
         const data = await res.json();
 
         if (data.success && data.data) {

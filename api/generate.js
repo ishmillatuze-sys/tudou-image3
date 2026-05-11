@@ -1,33 +1,27 @@
 import { createClient } from '@supabase/supabase-js';
 
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return res.status(500).json({ error: '服务器配置错误' });
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  const userId = req.headers['x-beta-code'];
-
-  if (!userId) {
+  // 验证用户 token
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: '请先登录' });
   }
 
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('id')
-    .eq('id', userId)
-    .single();
+  const token = authHeader.replace('Bearer ', '');
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-  if (error || !user) {
-    return res.status(401).json({ error: '用户无效' });
+  // 验证 token 获取用户信息
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+  if (authError || !user) {
+    return res.status(401).json({ error: '登录已过期，请重新登录' });
   }
 
   const API_KEY = process.env.APIMART_API_KEY;
