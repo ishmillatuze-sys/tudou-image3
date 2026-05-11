@@ -965,6 +965,7 @@
     function showTab(tab) {
       document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
+      document.getElementById('verifyForm').classList.add('hidden');
 
       if (tab === 'login') {
         document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
