@@ -4,10 +4,12 @@ export default async function handler(req, res) {
   const apiKey = process.env.APIMART_API_KEY;
 
   return res.status(200).json({
-    supabaseUrl: supabaseUrl ? 'SET' : 'NOT SET',
-    supabaseKey: supabaseKey ? 'SET (length: ' + supabaseKey.length + ')' : 'NOT SET',
+    supabaseUrlRaw: supabaseUrl,
+    supabaseUrlLength: supabaseUrl ? supabaseUrl.length : 0,
+    supabaseUrlStartsWithHttps: supabaseUrl ? supabaseUrl.startsWith('https://') : false,
+    supabaseKeyLength: supabaseKey ? supabaseKey.length : 0,
     apiKey: apiKey ? 'SET' : 'NOT SET',
-    keyPrefix: supabaseKey ? supabaseKey.substring(0, 20) + '...' : null,
-    hasNewlines: supabaseKey ? supabaseKey.includes('\n') : false
+    supabaseUrlHasSpaces: supabaseUrl ? supabaseUrl.includes(' ') : false,
+    supabaseUrlHasNewlines: supabaseUrl ? supabaseUrl.includes('\n') : false
   });
 }
