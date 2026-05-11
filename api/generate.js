@@ -1,6 +1,25 @@
 export default async function handler(req, res) {
+  // 设置 CORS 头
+  res.setHeader('Access-Control-Allow-Origin', 'https://tudouimage.cn');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // 处理预检请求
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // 验证请求来源
+  const referer = req.headers.referer || req.headers.origin || '';
+  const allowedDomains = ['tudouimage.cn', 'localhost', '127.0.0.1'];
+  const isAllowed = allowedDomains.some(domain => referer.includes(domain));
+
+  if (!isAllowed && process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: '请求来源不被允许' });
   }
 
   const API_KEY = process.env.APIMART_API_KEY;
