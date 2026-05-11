@@ -767,6 +767,37 @@
         padding-right: var(--space-2);
       }
     }
+
+    /* 联系方式弹窗 */
+    .contact-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .contact-content {
+      background: var(--bg-card);
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 320px;
+      width: 90%;
+    }
+
+    .contact-content h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    /* 时间标签 */
+    .message-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
@@ -800,7 +831,7 @@
       </form>
 
       <!-- 验证提示 -->
-      <div class="auth-form hidden" id="verifyForm">
+      <div class="hidden" id="verifyForm" style="padding: 16px;">
         <p style="text-align: center; color: var(--text-secondary); font-size: 14px;">
           验证邮件已发送到您的邮箱，请点击邮件中的链接完成验证后登录。
         </p>
@@ -893,7 +924,27 @@
           <h2 class="sidebar-title">生成历史</h2>
         </div>
         <div class="history-list" id="historyList"></div>
+        <div style="padding: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+          <a href="#" onclick="showContact(event)" style="color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+            联系作者
+          </a>
+        </div>
       </aside>
+    </div>
+  </div>
+
+  <!-- 联系方式弹窗 -->
+  <div class="contact-modal hidden" id="contactModal" onclick="hideContact(event)">
+    <div class="contact-content" onclick="event.stopPropagation()">
+      <h3>联系作者</h3>
+      <p style="margin: 16px 0;">如果有问题可以加微信联系我</p>
+      <div style="background: var(--bg-card); padding: 16px; border-radius: 8px; text-align: center;">
+        <span style="font-size: 18px; font-weight: 600;">G368kxx1</span>
+      </div>
+      <button onclick="hideContact()" style="margin-top: 16px; width: 100%; padding: 12px; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; cursor: pointer;">关闭</button>
     </div>
   </div>
 
@@ -1220,6 +1271,7 @@
     function renderUserMessage(prompt, images) {
       const container = document.getElementById('messages');
       const el = document.createElement('div');
+      const timeStr = new Date().toLocaleString();
       el.className = 'message user-msg';
       el.innerHTML = `
         <div class="message-avatar user">
@@ -1237,6 +1289,7 @@
               </div>
             ` : ''}
           </div>
+          <div class="message-time">${timeStr}</div>
         </div>
       `;
       container.appendChild(el);
@@ -1263,6 +1316,7 @@
     function renderResult(images) {
       const container = document.getElementById('messages');
       const el = document.createElement('div');
+      const timeStr = new Date().toLocaleString();
       el.className = 'message';
 
       el.innerHTML = `
@@ -1300,6 +1354,7 @@
               `).join('')}
             </div>
           </div>
+          <div class="message-time">${timeStr}</div>
         </div>
       `;
       container.appendChild(el);
@@ -1479,6 +1534,8 @@
 
       sortedHistory.forEach((item) => {
         if (item.images && item.images.length) {
+          const timeStr = new Date(item.created_at).toLocaleString();
+
           // 渲染用户消息
           const userMsg = document.createElement('div');
           userMsg.className = 'message user-msg';
@@ -1498,6 +1555,7 @@
                   </div>
                 ` : ''}
               </div>
+              <div class="message-time">${timeStr}</div>
             </div>
           `;
           container.appendChild(userMsg);
@@ -1529,11 +1587,18 @@
                             <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
                           </svg>
                         </button>
+                        <button class="action-icon-btn" onclick="retryWithPrompt('${escapeHtml(item.prompt || '')}', '${img}')" aria-label="重试">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1 4 1 10 7 10"/>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   `).join('')}
                 </div>
               </div>
+              <div class="message-time">${timeStr}</div>
             </div>
           `;
           container.appendChild(aiMsg);
@@ -1547,6 +1612,14 @@
       if (history.length > 0 && history[0].images) {
         lastGeneratedImages = history[0].images;
       }
+    }
+
+    // 重试功能 - 使用历史prompt和图片
+    function retryWithPrompt(prompt, imgUrl) {
+      document.getElementById('promptInput').value = prompt;
+      uploadedImages = [{ dataUrl: imgUrl }];
+      renderUploads();
+      document.getElementById('promptInput').focus();
     }
 
     // 渲染右侧历史面板
@@ -1578,6 +1651,18 @@
       const actualIdx = idx * 2;
       if (messages[actualIdx]) {
         messages[actualIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // ========== 联系方式弹窗 ==========
+    function showContact(e) {
+      e.preventDefault();
+      document.getElementById('contactModal').classList.remove('hidden');
+    }
+
+    function hideContact(e) {
+      if (!e || e.target === document.getElementById('contactModal')) {
+        document.getElementById('contactModal').classList.add('hidden');
       }
     }
 
