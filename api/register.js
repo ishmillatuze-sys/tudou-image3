@@ -25,11 +25,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Debug: 检查环境变量
-    if (!supabaseUrl || !supabaseKey) {
-      return res.status(500).json({ error: '服务器配置错误' });
-    }
-
     // 检查邀请码是否有效
     const { data: inviteData, error: inviteError } = await supabase
       .from('invite_codes')
@@ -38,10 +33,8 @@ export default async function handler(req, res) {
       .eq('is_used', false)
       .single();
 
-    console.log('Invite query result:', { inviteData, inviteError });
-
     if (inviteError || !inviteData) {
-      return res.status(400).json({ error: '邀请码无效或已被使用', debug: inviteError?.message });
+      return res.status(400).json({ error: '邀请码无效或已被使用' });
     }
 
     // 检查用户名是否已存在
