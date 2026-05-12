@@ -1275,8 +1275,12 @@
       let finalPrompt = prompt;
       let finalImages = [...uploadedImages];
 
-      const refKeywords = ['上一张图', '这一张图', '这张图'];
-      if (refKeywords.some(k => prompt.includes(k)) && lastGeneratedImages.length > 0) {
+      // 智能自动引用：检测是否提到上一张图
+      const refKeywords = ['上一张图', '这一张图', '这张图', '上一张', '这一张', '这张', '刚才的图', '刚才那张'];
+      const isReferringToLast = refKeywords.some(k => prompt.includes(k)) ||
+        /^(改|修|调|变|把|让|使|帮|请|能不能|可以|能否)/.test(prompt) && lastGeneratedImages.length > 0;
+
+      if (isReferringToLast && lastGeneratedImages.length > 0 && uploadedImages.length === 0) {
         lastGeneratedImages.forEach(url => finalImages.push({ dataUrl: url }));
         refKeywords.forEach(k => finalPrompt = finalPrompt.replace(k, ''));
         finalPrompt = finalPrompt.trim();
@@ -1489,14 +1493,20 @@
           const timeStr = new Date(item.created_at).toLocaleString();
           const promptText = escapeHtml(item.prompt || '无描述');
           const promptRaw = escapeHtml(item.prompt || '');
-          const refImagesJson = JSON.stringify(item.refImages || []).replace(/"/g, '&quot;');
+          const refImages = item.ref_images || [];
+          const refImagesHtml = refImages.length > 0
+            ? `<div class="message-images">${refImages.map(img => `<img src="${img}" class="message-img-thumb" alt="参考图">`).join('')}</div>`
+            : '';
 
           const userMsg = document.createElement('div');
           userMsg.className = 'message user-msg';
           userMsg.innerHTML = `
             <div class="message-avatar user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div class="message-content">
-              <div class="message-bubble"><div class="message-text">${promptText}</div></div>
+              <div class="message-bubble">
+                <div class="message-text">${promptText}</div>
+                ${refImagesHtml}
+              </div>
               <div class="message-time">${timeStr}</div>
             </div>
           `;
