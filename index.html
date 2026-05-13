@@ -1200,13 +1200,15 @@
 
     document.getElementById('fileInput').onchange = (e) => handleFiles(e.target.files);
 
-    // 压缩图片
-    function compressImage(dataUrl, maxWidth = 1024, quality = 0.7) {
+    // 压缩图片 - 使用 PNG 保持质量，避免多次压缩后质量下降
+    function compressImage(dataUrl, maxWidth = 2048) {
       return new Promise((resolve) => {
         const img = new Image();
+        img.crossOrigin = 'anonymous';  // 尝试处理 CORS
         img.onload = () => {
           let width = img.width;
           let height = img.height;
+          // 只在图片超大时才缩放
           if (width > maxWidth) {
             height = (height * maxWidth) / width;
             width = maxWidth;
@@ -1216,7 +1218,12 @@
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
+          // 使用 PNG 无损压缩，保持图片质量
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => {
+          // 如果加载失败，直接返回原始 URL
+          resolve(dataUrl);
         };
         img.src = dataUrl;
       });
@@ -1275,10 +1282,9 @@
       let finalPrompt = prompt;
       let finalImages = [...uploadedImages];
 
-      // 智能自动引用：检测是否提到上一张图
-      const refKeywords = ['上一张图', '这一张图', '这张图', '上一张', '这一张', '这张', '刚才的图', '刚才那张'];
-      const isReferringToLast = refKeywords.some(k => prompt.includes(k)) ||
-        /^(改|修|调|变|把|让|使|帮|请|能不能|可以|能否)/.test(prompt) && lastGeneratedImages.length > 0;
+      // 智能自动引用：检测是否明确提到上一张图
+      const refKeywords = ['上一张图', '这一张图', '这张图', '上一张', '这一张', '这张', '刚才的图', '刚才那张', '上次的图', '上次那张'];
+      const isReferringToLast = refKeywords.some(k => prompt.includes(k)) && lastGeneratedImages.length > 0;
 
       if (isReferringToLast && lastGeneratedImages.length > 0 && uploadedImages.length === 0) {
         lastGeneratedImages.forEach(url => finalImages.push({ dataUrl: url }));
@@ -1446,21 +1452,17 @@
     function openImage(url) { window.open(url, '_blank'); }
     function downloadImage(url) { const a = document.createElement('a'); a.href = url; a.download = `tudou-${Date.now()}.png`; a.click(); }
     async function useRefImage(url) {
-      const compressed = await compressImage(url);
-      uploadedImages.push({ dataUrl: compressed });
+      // 直接使用原始 URL，不压缩（生成的图片已经是优化过的）
+      uploadedImages.push({ dataUrl: url });
       renderUploads();
       document.getElementById('promptInput').focus();
     }
     async function retryImage(prompt, refImages) {
       // 恢复描述词
       document.getElementById('promptInput').value = prompt || '';
-      // 恢复参考图
+      // 恢复参考图 - 直接使用原始 URL，不压缩
       if (refImages && refImages.length > 0) {
-        uploadedImages = [];
-        for (const url of refImages) {
-          const compressed = await compressImage(url);
-          uploadedImages.push({ dataUrl: compressed });
-        }
+        uploadedImages = refImages.map(url => ({ dataUrl: url }));
         renderUploads();
       }
       document.getElementById('promptInput').focus();
