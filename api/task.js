@@ -1,6 +1,9 @@
 export default async function handler(req, res) {
   // 设置 CORS 头
-  res.setHeader('Access-Control-Allow-Origin', 'https://tudouimage.cn');
+  const origin = req.headers.origin || '';
+  if (origin.includes('tudouimage.cn') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 

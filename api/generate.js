@@ -1,6 +1,9 @@
 export default async function handler(req, res) {
-  // 设置 CORS 头
-  res.setHeader('Access-Control-Allow-Origin', 'https://tudouimage.cn');
+  // 设置 CORS 头 - 允许 tudouimage.cn 及其子域名
+  const origin = req.headers.origin || '';
+  if (origin.includes('tudouimage.cn') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -39,6 +42,16 @@ export default async function handler(req, res) {
       body: JSON.stringify(body)
     });
 
+    // 先检查响应是否成功
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('API Error Response:', text);
+      return res.status(response.status).json({
+        code: response.status,
+        message: `API错误: ${response.status} ${response.statusText}`
+      });
+    }
+
     const data = await response.json();
 
     if (data.code !== 200) {
@@ -48,6 +61,6 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
   } catch (error) {
     console.error('API Error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ code: 500, message: '服务器错误: ' + error.message });
   }
 }
